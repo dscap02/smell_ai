@@ -1,7 +1,7 @@
 pandas~=2.0.0
 numpy~=1.24.2
 PyGithub
-tensorflow~=2.12.1
+tensorflow>=2.13.0
 typing-extensions~=4.5.0
 matplotlib>=3.7.0
 openpyxl
