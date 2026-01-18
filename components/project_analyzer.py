@@ -61,9 +61,6 @@ class ProjectAnalyzer:
 
         print(f"Starting analysis for project: {project_name}")
 
-        filenames = FileUtils.get_python_files(project_path)
-        if not filenames:
-            raise ValueError(f"The project '{project_path}' contains no Python files.")
         col = [
             "filename",
             "function_name",
@@ -72,6 +69,21 @@ class ProjectAnalyzer:
             "description",
             "additional_info",
         ]
+        filenames = FileUtils.get_python_files(project_path)
+        if not filenames:
+            if not os.path.isdir(project_path):
+                raise ValueError(
+                    f"The project '{project_path}' contains no Python files."
+                )
+            print(f"No Python files found in project: {project_name}")
+            empty_results = pd.DataFrame(columns=col)
+            self._save_results(empty_results, "overview.csv")
+            print(f"Finished analysis for project: {project_name}")
+            print(
+                f"Total code smells found in project "
+                f"'{project_name}': 0\n"
+            )
+            return 0
         to_save = pd.DataFrame(columns=col)
         total_smells = 0
 
@@ -314,3 +326,4 @@ class ProjectAnalyzer:
             input_dir=os.path.join(self.output_path, "project_details"),
             output_dir=self.output_path,
         )
+
