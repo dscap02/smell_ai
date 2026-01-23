@@ -4,6 +4,9 @@ import threading
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 from components.inspector import Inspector
+from components.call_graph_generator import CallGraphGenerator
+from components.call_graph_analyzer import CallGraphAnalyzer
+from report.report_generator import ReportGenerator
 from utils.file_utils import FileUtils
 
 
@@ -47,7 +50,13 @@ class ProjectAnalyzer:
         df.to_csv(file_path, index=False)
         print(f"Results saved to {file_path}")
 
-    def analyze_project(self, project_path: str) -> int:
+    def analyze_project(
+        self,
+        project_path: str,
+        call_graph: bool = False,
+        analyze_call_graph: bool = False,
+        visualize_call_graph: bool = False,
+    ) -> int:
         """
         Analyzes a single project for code smells.
 
@@ -108,6 +117,15 @@ class ProjectAnalyzer:
 
         self._save_results(to_save, "overview.csv")
 
+        if call_graph or analyze_call_graph or visualize_call_graph:
+            self._process_call_graph(
+                project_path,
+                to_save,
+                export_graph=call_graph,
+                analyze_graph=analyze_call_graph,
+                visualize_graph=visualize_call_graph,
+            )
+
         print(f"Finished analysis for project: {project_name}")
         print(
             f"Total code smells found in project "
@@ -115,8 +133,49 @@ class ProjectAnalyzer:
         )
         return total_smells
 
+    def _process_call_graph(
+        self,
+        project_path: str,
+        smell_results: pd.DataFrame,
+        export_graph: bool,
+        analyze_graph: bool,
+        visualize_graph: bool,
+    ) -> None:
+        call_graph_path = os.path.join(self.output_path, "call_graph.json")
+        dot_path = os.path.join(self.output_path, "call_graph.dot")
+
+        generator = CallGraphGenerator(
+            project_root=project_path,
+            smell_data=smell_results,
+        )
+        call_graph = generator.build()
+
+        if export_graph or analyze_graph or visualize_graph:
+            generator.export_json(call_graph_path)
+            generator.export_dot(dot_path)
+
+        if analyze_graph:
+            analyzer = CallGraphAnalyzer(call_graph)
+            analysis_results = analyzer.analyze()
+            report_generator = ReportGenerator(
+                input_path=self.output_path, output_path=self.output_path
+            )
+            report_generator.export_call_graph_metrics(analysis_results)
+            report_generator.export_call_graph_cycles(analysis_results)
+
+        if visualize_graph:
+            report_generator = ReportGenerator(
+                input_path=self.output_path, output_path=self.output_path
+            )
+            report_generator.visualize_call_graph(dot_path)
+
     def analyze_projects_sequential(
-        self, base_path: str, resume: bool = False
+        self,
+        base_path: str,
+        resume: bool = False,
+        call_graph: bool = False,
+        analyze_call_graph: bool = False,
+        visualize_call_graph: bool = False,
     ):
         """
         Sequentially analyzes multiple projects.
@@ -203,6 +262,15 @@ class ProjectAnalyzer:
                     to_save.to_csv(detailed_file_path, index=False)
                     print(f"Detailed results saved to {detailed_file_path}")
 
+                if call_graph or analyze_call_graph or visualize_call_graph:
+                    self._process_call_graph(
+                        project_path,
+                        to_save,
+                        export_graph=call_graph,
+                        analyze_graph=analyze_call_graph,
+                        visualize_graph=visualize_call_graph,
+                    )
+
                 total_smells += project_smells
                 print(
                     f"Project '{dirname}' analyzed successfully."
@@ -220,7 +288,14 @@ class ProjectAnalyzer:
         )
         print(f"Total code smells found in all projects: {total_smells}\n")
 
-    def analyze_projects_parallel(self, base_path: str, max_workers: int):
+    def analyze_projects_parallel(
+        self,
+        base_path: str,
+        max_workers: int,
+        call_graph: bool = False,
+        analyze_call_graph: bool = False,
+        visualize_call_graph: bool = False,
+    ):
         """
         Analyzes multiple projects in parallel.
 
@@ -297,6 +372,15 @@ class ProjectAnalyzer:
                     to_save.to_csv(detailed_file_path, index=False)
                     print(f"Detailed results saved to {detailed_file_path}")
 
+                if call_graph or analyze_call_graph or visualize_call_graph:
+                    self._process_call_graph(
+                        project_path,
+                        to_save,
+                        export_graph=call_graph,
+                        analyze_graph=analyze_call_graph,
+                        visualize_graph=visualize_call_graph,
+                    )
+
                 total_smells += project_smells
 
                 # Thread-safe log update
@@ -326,4 +410,3 @@ class ProjectAnalyzer:
             input_dir=os.path.join(self.output_path, "project_details"),
             output_dir=self.output_path,
         )
-
