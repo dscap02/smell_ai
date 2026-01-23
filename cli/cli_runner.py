@@ -45,6 +45,9 @@ class CodeSmileCLI:
         print(f"Resume execution: {self.args.resume}")
         print(f"Max Walkers: {self.args.max_walkers}")
         print(f"Analyze multiple projects: {self.args.multiple}")
+        print(f"Call graph generation: {self.args.call_graph}")
+        print(f"Analyze call graph: {self.args.analyze_call_graph}")
+        print(f"Visualize call graph: {self.args.visualize_call_graph}")
 
         if not self.args.resume:
             self.analyzer.clean_output_directory()
@@ -52,14 +55,27 @@ class CodeSmileCLI:
         if self.args.multiple:
             if self.args.parallel:
                 self.analyzer.analyze_projects_parallel(
-                    self.args.input, self.args.max_walkers
+                    self.args.input,
+                    self.args.max_walkers,
+                    call_graph=self.args.call_graph,
+                    analyze_call_graph=self.args.analyze_call_graph,
+                    visualize_call_graph=self.args.visualize_call_graph,
                 )
             else:
                 self.analyzer.analyze_projects_sequential(
-                    self.args.input, resume=self.args.resume
+                    self.args.input,
+                    resume=self.args.resume,
+                    call_graph=self.args.call_graph,
+                    analyze_call_graph=self.args.analyze_call_graph,
+                    visualize_call_graph=self.args.visualize_call_graph,
                 )
         else:
-            total_smells = self.analyzer.analyze_project(self.args.input)
+            total_smells = self.analyzer.analyze_project(
+                self.args.input,
+                call_graph=self.args.call_graph,
+                analyze_call_graph=self.args.analyze_call_graph,
+                visualize_call_graph=self.args.visualize_call_graph,
+            )
             print(
                 f"Analysis completed. Total code smells found: {total_smells}"
             )
@@ -101,6 +117,21 @@ def main():
         "--multiple",
         action="store_true",
         help="Analyze multiple projects (default: False)",
+    )
+    parser.add_argument(
+        "--call-graph",
+        action="store_true",
+        help="Generate call graph outputs (default: False)",
+    )
+    parser.add_argument(
+        "--analyze-call-graph",
+        action="store_true",
+        help="Analyze call graph metrics and cycles (default: False)",
+    )
+    parser.add_argument(
+        "--visualize-call-graph",
+        action="store_true",
+        help="Generate call graph visualizations (default: False)",
     )
 
     # Parse arguments
