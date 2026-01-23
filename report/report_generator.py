@@ -1,5 +1,8 @@
 import argparse
+import json
 import os
+import shutil
+import subprocess
 import sys
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -163,6 +166,64 @@ class ReportGenerator:
         plt.tight_layout()
         plt.savefig(os.path.join(self.output_path, "smell_report_chart.png"))
         print("Bar chart saved to 'smell_report_chart.png'.")
+
+    def export_call_graph_metrics(self, analysis_results: dict) -> None:
+        """
+        Exports call graph metrics to a CSV file.
+        """
+        metrics = analysis_results.get("metrics", {})
+        rows = []
+        for node, values in metrics.items():
+            rows.append(
+                {
+                    "node": node,
+                    "in_degree": values.get("in_degree", 0),
+                    "out_degree": values.get("out_degree", 0),
+                    "betweenness_centrality": values.get(
+                        "betweenness_centrality", 0.0
+                    ),
+                    "smell_count": values.get("smell_count", 0),
+                }
+            )
+        df = pd.DataFrame(rows)
+        output_file = os.path.join(
+            self.output_path, "call_graph_metrics.csv"
+        )
+        df.to_csv(output_file, index=False)
+        print(f"Call graph metrics saved to '{output_file}'.")
+
+    def export_call_graph_cycles(self, analysis_results: dict) -> None:
+        """
+        Exports call graph cycles to a JSON file.
+        """
+        cycles = analysis_results.get("cycles", [])
+        output_file = os.path.join(
+            self.output_path, "call_graph_cycles.json"
+        )
+        with open(output_file, "w", encoding="utf-8") as json_file:
+            json.dump(cycles, json_file, indent=2)
+        print(f"Call graph cycles saved to '{output_file}'.")
+
+    def visualize_call_graph(self, dot_path: str) -> None:
+        """
+        Generates SVG and PNG visualizations from a DOT file.
+        """
+        dot_binary = shutil.which("dot")
+        if not dot_binary:
+            print("Graphviz 'dot' binary not found. Skipping visualization.")
+            return
+
+        svg_path = os.path.join(self.output_path, "call_graph.svg")
+        png_path = os.path.join(self.output_path, "call_graph.png")
+
+        subprocess.run(
+            [dot_binary, "-Tsvg", dot_path, "-o", svg_path], check=False
+        )
+        subprocess.run(
+            [dot_binary, "-Tpng", dot_path, "-o", png_path], check=False
+        )
+        print(f"Call graph visualization saved to '{svg_path}'.")
+        print(f"Call graph visualization saved to '{png_path}'.")
 
     def menu(self):
         """Displays a menu for the user to choose which report to generate."""
