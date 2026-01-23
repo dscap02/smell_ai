@@ -279,8 +279,8 @@ class InPlaceAPIsMisusedSmell(Smell):
                     line=node.lineno,
                     additional_info=(
                         f"The result of Pandas method `{method_name}` is not "
-                        "assigned to any variable nor otherwise used, and "
-                        "`inplace` is not explicitly set. This suggests an "
+                        "assigned to a variable, and the `inplace` parameter "
+                        "is not explicitly set. This suggests an "
                         "incorrect assumption of in-place behavior. Assign the "
                         "result to a variable or use `inplace=True` if "
                         "supported."
