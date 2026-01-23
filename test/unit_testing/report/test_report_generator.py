@@ -156,3 +156,54 @@ def test_menu(mocker):
 
     choice = generator.menu()
     assert choice == "1"
+
+
+def test_export_call_graph_metrics(generator, mocker):
+    analysis_results = {
+        "metrics": {
+            "module:alpha": {
+                "in_degree": 1,
+                "out_degree": 2,
+                "betweenness_centrality": 0.5,
+                "smell_count": 1,
+            }
+        }
+    }
+
+    pandas_to_csv_call = mocker.patch("pandas.DataFrame.to_csv")
+
+    generator.export_call_graph_metrics(analysis_results)
+
+    output_path = os.path.normpath("test_output/call_graph_metrics.csv")
+    pandas_to_csv_call.assert_called_with(output_path, index=False)
+
+
+def test_export_call_graph_cycles(generator, mocker):
+    analysis_results = {"cycles": [["module:A", "module:B", "module:A"]]}
+
+    mock_open = mocker.patch("builtins.open", mocker.mock_open())
+    mock_json_dump = mocker.patch("json.dump")
+
+    generator.export_call_graph_cycles(analysis_results)
+
+    output_path = os.path.normpath("test_output/call_graph_cycles.json")
+    mock_open.assert_called_with(output_path, "w", encoding="utf-8")
+    mock_json_dump.assert_called()
+
+
+def test_visualize_call_graph(generator, mocker):
+    mocker.patch("shutil.which", return_value="/usr/bin/dot")
+    mock_run = mocker.patch("subprocess.run")
+
+    generator.visualize_call_graph("call_graph.dot")
+
+    svg_path = os.path.normpath("test_output/call_graph.svg")
+    png_path = os.path.normpath("test_output/call_graph.png")
+    mock_run.assert_any_call(
+        ["/usr/bin/dot", "-Tsvg", "call_graph.dot", "-o", svg_path],
+        check=False,
+    )
+    mock_run.assert_any_call(
+        ["/usr/bin/dot", "-Tpng", "call_graph.dot", "-o", png_path],
+        check=False,
+    )

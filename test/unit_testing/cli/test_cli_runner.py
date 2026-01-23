@@ -19,6 +19,9 @@ def test_execute_with_valid_arguments(mock_analyzer):
     args.resume = False
     args.multiple = False
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_project.return_value = (
@@ -34,7 +37,12 @@ def test_execute_with_valid_arguments(mock_analyzer):
         cli.execute()
 
         # Ensure the methods were called as expected
-        mock_analyzer.analyze_project.assert_called_once_with("mock_input")
+        mock_analyzer.analyze_project.assert_called_once_with(
+            "mock_input",
+            call_graph=False,
+            analyze_call_graph=False,
+            visualize_call_graph=False,
+        )
         mock_print.assert_any_call(
             "Analysis completed. Total code smells found: 2"
         )
@@ -50,6 +58,9 @@ def test_execute_with_missing_arguments():
     args.resume = False
     args.multiple = False
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Initialize the CLI with mocked arguments
     cli = CodeSmileCLI(args)
@@ -74,6 +85,9 @@ def test_execute_with_invalid_max_walkers(mock_analyzer):
     args.max_walkers = -1  # Invalid max_walkers
     args.resume = False
     args.multiple = True
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_projects_parallel = MagicMock()
@@ -97,6 +111,9 @@ def test_execute_with_parallel_execution(mock_analyzer):
     args.resume = False
     args.multiple = True
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_projects_parallel.return_value = (
@@ -114,7 +131,11 @@ def test_execute_with_parallel_execution(mock_analyzer):
 
         # Ensure parallel execution method was called
         mock_analyzer.analyze_projects_parallel.assert_called_once_with(
-            "mock_input", 5
+            "mock_input",
+            5,
+            call_graph=False,
+            analyze_call_graph=False,
+            visualize_call_graph=False,
         )
         mock_analyzer.merge_all_results.assert_called_once()
         mock_print.assert_any_call("Analysis results saved successfully.")
@@ -129,6 +150,9 @@ def test_execute_with_sequential_execution(mock_analyzer):
     args.resume = False
     args.multiple = False
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_project.return_value = (
@@ -143,7 +167,12 @@ def test_execute_with_sequential_execution(mock_analyzer):
         cli.execute()
 
         # Ensure sequential execution method was called
-        mock_analyzer.analyze_project.assert_called_once_with("mock_input")
+        mock_analyzer.analyze_project.assert_called_once_with(
+            "mock_input",
+            call_graph=False,
+            analyze_call_graph=False,
+            visualize_call_graph=False,
+        )
         mock_print.assert_any_call(
             "Analysis completed. Total code smells found: 2"
         )
@@ -158,6 +187,9 @@ def test_execute_with_resume(mock_analyzer):
     args.resume = True
     args.multiple = False
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_project.return_value = 2
@@ -172,7 +204,12 @@ def test_execute_with_resume(mock_analyzer):
 
         # Check that clean_output_directory was not called due to resume
         mock_analyzer.clean_output_directory.assert_not_called()
-        mock_analyzer.analyze_project.assert_called_once_with("mock_input")
+        mock_analyzer.analyze_project.assert_called_once_with(
+            "mock_input",
+            call_graph=False,
+            analyze_call_graph=False,
+            visualize_call_graph=False,
+        )
         mock_print.assert_any_call(
             "Analysis completed. Total code smells found: 2"
         )
@@ -186,6 +223,9 @@ def test_print_configuration(mock_analyzer):
     args.resume = False
     args.multiple = False
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_project.return_value = 2
@@ -209,6 +249,15 @@ def test_print_configuration(mock_analyzer):
         mock_print.assert_any_call(
             f"Analyze multiple projects: {args.multiple}"
         )
+        mock_print.assert_any_call(
+            f"Call graph generation: {args.call_graph}"
+        )
+        mock_print.assert_any_call(
+            f"Analyze call graph: {args.analyze_call_graph}"
+        )
+        mock_print.assert_any_call(
+            f"Visualize call graph: {args.visualize_call_graph}"
+        )
 
 
 def test_execute_with_resume_and_multiple_projects(mock_analyzer):
@@ -219,6 +268,9 @@ def test_execute_with_resume_and_multiple_projects(mock_analyzer):
     args.resume = True  # Resume execution
     args.multiple = True  # Multiple projects flag set
     args.max_walkers = 5
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Mock the methods of ProjectAnalyzer
     mock_analyzer.analyze_projects_parallel.return_value = (
@@ -250,6 +302,9 @@ def test_execute_with_invalid_max_walkers_and_parallel(mock_analyzer):
     args.max_walkers = 0  # Invalid max_walkers
     args.resume = False
     args.multiple = False
+    args.call_graph = False
+    args.analyze_call_graph = False
+    args.visualize_call_graph = False
 
     # Initialize the CLI with mocked arguments and analyzer
     cli = CodeSmileCLI(args)
