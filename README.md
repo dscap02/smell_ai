@@ -45,18 +45,18 @@ The static analysis tool detects **ML-specific code smells** through rule-based 
 
 #### Generic Code Smells
 
-| **Name**                                | **Description**                                                            |
-| --------------------------------------- | -------------------------------------------------------------------------- |
-| Broadcasting Feature Not Used           | Tensor operations that fail to utilize TensorFlow's broadcasting feature.  |
-| Columns and DataType Not Explicitly Set | DataFrames created without explicitly setting column names and data types. |
-| Deterministic Algorithm Option Not Used | This smell occurs when the option `torch.use_deterministic_algorithms(True)` is not removed.|
-| Empty Column Misinitialization          | Initializing DataFrame columns with zeros or empty strings.                |
-| Hyperparameters Not Explicitly Set      | Missing explicit hyperparameter definitions for ML models.                 |
-| In-Place APIs Misused                   | Assuming Pandas methods modify DataFrames in-place without reassignment.   |
-| Memory Not Freed                        | Failing to free memory for ML models declared in loops.                    |
-| Merge API Parameter Not Explicitly Set  | Missing explicit `how` and `on` parameters in Pandas merge operations.     |
-| NaN Equivalence Comparison Misused      | Incorrect comparison of values with `np.nan`.                              |
-| Unnecessary Iteration                   | Using explicit loops instead of Pandas vectorized operations.              |
+| **Name**                                | **Description**                                                                              |
+| --------------------------------------- |----------------------------------------------------------------------------------------------|
+| Broadcasting Feature Not Used           | Tensor operations that fail to utilize TensorFlow's broadcasting feature.                    |
+| Columns and DataType Not Explicitly Set | DataFrames created without explicitly setting column names and data types.                   |
+| Deterministic Algorithm Option Not Used | This smell occurs when the option `torch.use_deterministic_algorithms(True)` is not removed. |
+| Empty Column Misinitialization          | Initializing DataFrame columns with zeros or empty strings.                                  |
+| Hyperparameters Not Explicitly Set      | Missing explicit hyperparameter definitions for ML models.                                   |
+| In-Place APIs Misused                   | Assuming Pandas and Numpy methods modify DataFrames in-place without reassignment.           |
+| Memory Not Freed                        | Failing to free memory for ML models declared in loops.                                      |
+| Merge API Parameter Not Explicitly Set  | Missing explicit `how` and `on` parameters in Pandas merge operations.                       |
+| NaN Equivalence Comparison Misused      | Incorrect comparison of values with `np.nan`.                                                |
+| Unnecessary Iteration                   | Using explicit loops instead of Pandas vectorized operations.                                |
 
 #### AI-Specific Code Smells
 
@@ -84,6 +84,9 @@ python -m cli.cli_runner --input <input_directory> --output <output_directory> [
 - --max_walkers: Number of workers to use for parallel execution (default: 5). Only applicable if --parallel is enabled.
 - --resume: Resume a previous analysis from where it stopped.
 - --multiple: Analyze multiple projects within the input folder.
+- --call-graph: Generate call graph outputs (call_graph.json, call_graph.dot).
+- --analyze-call-graph: Analyze call graph metrics and cycles (call_graph_metrics.csv, call_graph_cycles.json).
+- --visualize-call-graph: Generate call graph visualizations (call_graph.svg, call_graph.png).
 
 #### GUI
 ```bash
@@ -178,7 +181,6 @@ This project builds on the research presented in:
 - [Read the full paper](https://arxiv.org/abs/2403.08311) and [appendix](https://figshare.com/articles/online_resource/When_Code_Smells_Meet_ML_On_the_Lifecycle_of_ML-specific_Code_Smells_in_ML-enabled_Systems_-_Appendix/25231817?file=44582128)
 
 Improvements and Experimental development of the web application and the AI-Based Detector were carried out by **[Dario Mazza](https://github.com/xDaryamo)** and **[Nicolò Delogu](https://github.com/XJustUnluckyX)** as part of the *Software Engineering: Management and Evolution* and _Software Engineering for AI_ courses in the Master's Degree program in Computer Science.
-
 
 
 
