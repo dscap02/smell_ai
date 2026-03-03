@@ -19,7 +19,7 @@
     "lru-cache": "^10.4.3",
     "maplibre-gl": "^5.0.0",
     "next": "14.2.23",
-    "plotly.js": "^2.35.3",
+    "plotly.js": "^3.4.0",
     "plotly.js-basic-dist": "^2.35.3",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
